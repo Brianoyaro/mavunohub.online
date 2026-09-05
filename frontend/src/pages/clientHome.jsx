@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+
 import { useCartStore } from "../store/cartStore";
-import { productCategoryOptions, productTypeOptions, productMaterialOptions } from "../components/configs";
+import {
+    productCategoryOptions,
+    productTypeOptions,
+    productMaterialOptions,
+} from "../components/configs";
 import { productAPI } from "../api/productsApi";
 
+const PRODUCTS_PER_CATEGORY = parseInt(import.meta.env.VITE_APP_PRODUCTS_PER_CATEGORY) || 4;
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -23,7 +29,6 @@ export const Home = () => {
         material: "",
     });
 
-    // Mobile filter accordion state
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     const fetchProducts = useCallback(async () => {
@@ -32,7 +37,7 @@ export const Home = () => {
 
             const response = await productAPI.getAllProducts();
 
-            setProducts(response.data);
+            setProducts(response.data || []);
         } catch (error) {
             console.error("Error fetching products:", error);
             toast.error("Failed to load products.");
@@ -136,7 +141,16 @@ export const Home = () => {
      * Navigate to product details.
      */
     const handleCardClick = (id) => {
-        navigate(`/products/${id}`);
+        navigate(`/${id}`);
+    };
+
+    /*
+     * Navigate to all products in a category.
+     */
+    const handleViewAll = (category) => {
+        navigate(
+            `/products?category=${encodeURIComponent(category)}`
+        );
     };
 
     /*
@@ -159,21 +173,17 @@ export const Home = () => {
     });
 
     /*
-     * Loading state
+     * Loading state.
      */
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50">
                 <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
-
-                    {/* Header skeleton */}
                     <div className="mb-6 sm:mb-8">
                         <div className="h-7 w-52 animate-pulse rounded bg-gray-200 sm:h-8 sm:w-60" />
-
                         <div className="mt-3 h-4 w-full max-w-md animate-pulse rounded bg-gray-200" />
                     </div>
 
-                    {/* Filter skeleton */}
                     <div className="mb-6 space-y-3 sm:mb-10 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
                         {[1, 2, 3].map((item) => (
                             <div
@@ -183,25 +193,28 @@ export const Home = () => {
                         ))}
                     </div>
 
-                    {/* Product skeleton */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                            <div
-                                key={item}
-                                className="overflow-hidden rounded-xl bg-white shadow-sm"
-                            >
-                                <div className="h-40 animate-pulse bg-gray-200 sm:h-56" />
+                    <div className="space-y-10">
+                        {[1, 2, 3].map((section) => (
+                            <section key={section}>
+                                <div className="mb-5 h-7 w-40 animate-pulse rounded bg-gray-200" />
 
-                                <div className="space-y-2 p-3 sm:space-y-3 sm:p-5">
-                                    <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200 sm:h-5" />
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                                    {[1, 2, 3, 4].map((item) => (
+                                        <div
+                                            key={item}
+                                            className="overflow-hidden rounded-xl bg-white shadow-sm"
+                                        >
+                                            <div className="h-40 animate-pulse bg-gray-200 sm:h-60" />
 
-                                    <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200 sm:h-4" />
-
-                                    <div className="h-3 w-full animate-pulse rounded bg-gray-200 sm:h-4" />
-
-                                    <div className="h-9 w-full animate-pulse rounded bg-gray-200 sm:h-10" />
+                                            <div className="space-y-3 p-3 sm:p-5">
+                                                <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200" />
+                                                <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200" />
+                                                <div className="h-9 w-full animate-pulse rounded bg-gray-200" />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
+                            </section>
                         ))}
                     </div>
                 </div>
@@ -212,11 +225,7 @@ export const Home = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
-
-                {/* ---------------------------------------- */}
                 {/* Header */}
-                {/* ---------------------------------------- */}
-
                 <div className="mb-6 sm:mb-8">
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                         Discover Our Furniture
@@ -228,16 +237,9 @@ export const Home = () => {
                     </p>
                 </div>
 
-                {/* ---------------------------------------- */}
                 {/* Filters */}
-                {/* ---------------------------------------- */}
-
                 <div className="mb-7 rounded-xl border border-gray-100 bg-white shadow-sm sm:mb-10 sm:rounded-2xl">
-
-                    {/* ------------------------------------ */}
                     {/* Mobile filter toggle */}
-                    {/* ------------------------------------ */}
-
                     <button
                         type="button"
                         onClick={() =>
@@ -248,15 +250,12 @@ export const Home = () => {
                         className="flex w-full items-center justify-between px-4 py-3.5 text-left md:hidden"
                     >
                         <div className="flex min-w-0 items-center gap-3">
-
-                            {/* Filter icon */}
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                                 <svg
                                     className="h-5 w-5"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
-                                    aria-hidden="true"
                                 >
                                     <path
                                         strokeLinecap="round"
@@ -292,17 +291,13 @@ export const Home = () => {
                             </div>
                         </div>
 
-                        {/* Chevron */}
                         <svg
                             className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200 ${
-                                isFiltersOpen
-                                    ? "rotate-180"
-                                    : ""
+                                isFiltersOpen ? "rotate-180" : ""
                             }`}
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
-                            aria-hidden="true"
                         >
                             <path
                                 strokeLinecap="round"
@@ -313,21 +308,14 @@ export const Home = () => {
                         </svg>
                     </button>
 
-                    {/* ------------------------------------ */}
                     {/* Filter content */}
-                    {/* ------------------------------------ */}
-
                     <div
                         id="mobile-filter-panel"
                         className={`${
-                            isFiltersOpen
-                                ? "block"
-                                : "hidden"
+                            isFiltersOpen ? "block" : "hidden"
                         } border-t border-gray-100 md:block md:border-t-0`}
                     >
                         <div className="p-3 sm:p-5">
-
-                            {/* Filter header */}
                             <div className="mb-4 hidden items-center justify-between gap-3 md:flex md:mb-5">
                                 <div>
                                     <h2 className="text-lg font-semibold text-gray-900">
@@ -350,7 +338,6 @@ export const Home = () => {
                                 )}
                             </div>
 
-                            {/* Mobile filter header */}
                             <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
                                 <div>
                                     <h2 className="text-sm font-semibold text-gray-900">
@@ -373,9 +360,7 @@ export const Home = () => {
                                 )}
                             </div>
 
-                            {/* Select filters */}
                             <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
-
                                 {/* Category */}
                                 <div>
                                     <label
@@ -474,7 +459,6 @@ export const Home = () => {
                                 </div>
                             </div>
 
-                            {/* Active filters */}
                             {hasActiveFilters && (
                                 <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-gray-100 pt-3 sm:mt-5 sm:gap-2 sm:pt-4">
                                     <span className="mr-1 text-xs text-gray-500 sm:text-sm">
@@ -504,10 +488,7 @@ export const Home = () => {
                     </div>
                 </div>
 
-                {/* ---------------------------------------- */}
-                {/* No products */}
-                {/* ---------------------------------------- */}
-
+                {/* Empty states */}
                 {products.length === 0 ? (
                     <div className="rounded-xl bg-white px-4 py-12 text-center shadow-sm sm:rounded-2xl sm:px-6 sm:py-16">
                         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16">
@@ -569,12 +550,8 @@ export const Home = () => {
                         </button>
                     </div>
                 ) : (
-
-                    /* ---------------------------------------- */
                     /* Category sections */
-                    /* ---------------------------------------- */
-
-                    <div className="space-y-8 sm:space-y-12">
+                    <div className="space-y-10 sm:space-y-14">
                         {productCategoryOptions.map((category) => {
                             const categoryProducts =
                                 productsByCategory[category];
@@ -583,34 +560,66 @@ export const Home = () => {
                                 return null;
                             }
 
+                            const visibleProducts =
+                                categoryProducts.slice(
+                                    0,
+                                    PRODUCTS_PER_CATEGORY
+                                );
+
+                            const hasMoreProducts =
+                                categoryProducts.length >
+                                PRODUCTS_PER_CATEGORY;
+
                             return (
                                 <section key={category}>
-
                                     {/* Category heading */}
-                                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-200 pb-3 sm:mb-5">
+                                    <div className="mb-4 flex items-end justify-between gap-4 sm:mb-6">
                                         <div className="min-w-0">
-                                            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                                                {category}
-                                            </h2>
+                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                <div className="h-7 w-1 rounded-full bg-blue-600 sm:h-8" />
 
-                                            <p className="mt-0.5 hidden text-sm text-gray-500 sm:block">
+                                                <h2 className="truncate text-xl font-bold text-gray-900 sm:text-2xl">
+                                                    {category}
+                                                </h2>
+                                            </div>
+
+                                            <p className="mt-1.5 hidden pl-3 text-sm text-gray-500 sm:block">
                                                 Explore our{" "}
                                                 {category.toLowerCase()}{" "}
                                                 furniture
                                             </p>
                                         </div>
 
-                                        <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600 sm:px-3 sm:text-sm">
-                                            {categoryProducts.length}{" "}
-                                            {categoryProducts.length === 1
-                                                ? "product"
-                                                : "products"}
-                                        </span>
+                                        {/* View all */}
+                                        {hasMoreProducts && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleViewAll(category)
+                                                }
+                                                className="group inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700 sm:px-3 sm:py-2 sm:text-sm"
+                                            >
+                                                View all
+                                                <svg
+                                                    className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Product grid */}
                                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                                        {categoryProducts.map((product) => {
+                                        {visibleProducts.map((product) => {
                                             const firstImageUrl =
                                                 product.images?.[0]?.imageUrl;
 
@@ -627,10 +636,8 @@ export const Home = () => {
                                                     }
                                                     className="group flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:rounded-2xl"
                                                 >
-
                                                     {/* Product image */}
                                                     <div className="relative h-40 overflow-hidden bg-gray-100 sm:h-60">
-
                                                         {firstImageUrl ? (
                                                             <img
                                                                 src={getImageUrl(
@@ -689,8 +696,6 @@ export const Home = () => {
 
                                                     {/* Product information */}
                                                     <div className="flex flex-1 flex-col p-3 sm:p-5">
-
-                                                        {/* Name + type */}
                                                         <div className="mb-2 sm:mb-3">
                                                             <h3 className="line-clamp-2 min-h-[34px] text-sm font-bold leading-4 text-gray-900 sm:min-h-0 sm:text-lg sm:leading-6">
                                                                 {
@@ -703,7 +708,6 @@ export const Home = () => {
                                                             </p>
                                                         </div>
 
-                                                        {/* Description */}
                                                         <p className="mb-3 hidden min-h-[40px] text-sm leading-5 text-gray-600 sm:mb-5 sm:block">
                                                             {description.length >
                                                             100
@@ -714,7 +718,6 @@ export const Home = () => {
                                                                 : description}
                                                         </p>
 
-                                                        {/* Price + material */}
                                                         <div className="mb-3 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
                                                             <span className="truncate text-base font-bold text-gray-900 sm:text-xl">
                                                                 {priceFormatter.format(
@@ -769,6 +772,35 @@ export const Home = () => {
                                             );
                                         })}
                                     </div>
+
+                                    {/* Mobile-friendly bottom View All */}
+                                    {hasMoreProducts && (
+                                        <div className="mt-4 flex justify-center sm:hidden">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleViewAll(category)
+                                                }
+                                                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                            >
+                                                View all{" "}
+                                                {category.toLowerCase()}
+                                                <svg
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
                                 </section>
                             );
                         })}

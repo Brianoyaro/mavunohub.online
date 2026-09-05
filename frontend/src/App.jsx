@@ -7,6 +7,7 @@ import { NavBar } from './components/navbar';
 import { Footer } from './components/footer';
 import { ProductDetail } from './pages/clientProductDetail';
 import { Cart } from "./pages/cartView";
+import { ProductListView } from "./pages/clientProductListView";
 
 
 // Create a client for React Query
@@ -42,7 +43,8 @@ const AppRoutes = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/:id" element={<ProductDetail />} />
+          <Route path="/products" element={<ProductListView />} />
           <Route path="/cart" element={<Cart />} />
         </Route>
       </Routes>

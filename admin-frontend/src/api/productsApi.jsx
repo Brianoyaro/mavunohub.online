@@ -17,7 +17,7 @@ export const productAPI = {
       formData.append('images', image);
     });
 
-    return apiClient.post('/api/products', formData);
+    return apiClient.post('/products', formData);
   },
 
   // Update product with images
