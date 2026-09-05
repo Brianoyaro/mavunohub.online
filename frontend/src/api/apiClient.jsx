@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'; // Default to localhost if not set
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/api'; // Default to localhost if not set
 
 const apiClient = axios.create({
   baseURL: BACKEND_URL

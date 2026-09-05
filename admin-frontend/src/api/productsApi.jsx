@@ -3,10 +3,10 @@ import apiClient from './apiClient';
 // API Service for Products
 export const productAPI = {
   // Get all products
-  getAllProducts: () => apiClient.get('/api/products'),
+  getAllProducts: () => apiClient.get('/products'),
 
   // Get single product
-  getProduct: (id) => apiClient.get(`/api/products/${id}`),
+  getProduct: (id) => apiClient.get(`/products/${id}`),
 
   // Create product with images
   createProduct: (productData, images) => {
@@ -35,9 +35,9 @@ export const productAPI = {
     // Add images to keep
     formData.append('imagesToKeep', JSON.stringify(imagesToKeep));
 
-    return apiClient.put(`/api/products/${id}`, formData);
+    return apiClient.put(`/products/${id}`, formData);
   },
 
   // Delete product
-  deleteProduct: (id) => apiClient.delete(`/api/products/${id}`),
+  deleteProduct: (id) => apiClient.delete(`/products/${id}`),
 };

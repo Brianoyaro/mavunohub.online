@@ -42,7 +42,7 @@ class ProductService {
                 await ProductImage.bulkCreate(imageUrls);
             }
             let response = await this.getProductById(createdProduct.id);
-            response = this.normalizeResponseProductData(response.toJSON());
+            response = this.normalizeResponseProductData(response);
             return response;
         } catch (error) {
             throw new Error(`Error creating product: ${error.message}`);
@@ -71,7 +71,10 @@ class ProductService {
 
     async updateProduct(id, productData, files, imagesToKeep) {
         try {
-            const existingProduct = await this.getProductById(id);
+            // const existingProduct = await this.getProductById(id);
+            const existingProduct = await Product.findByPk(id, {
+                include: [{ model: ProductImage, as: 'images' }],
+            });
             if (!existingProduct) {
                 throw new Error('Product not found');
             }
@@ -106,7 +109,7 @@ class ProductService {
                 await ProductImage.bulkCreate(newImageUrls);
             }
             let response = await this.getProductById(id);
-            response = this.normalizeResponseProductData(response.toJSON());
+            response = this.normalizeResponseProductData(response);
             return response;
         } catch (error) {
             throw new Error(`Error updating product: ${error.message}`);
@@ -114,7 +117,10 @@ class ProductService {
     }
 
     async deleteProduct(id) {
-        const existingProduct = await this.getProductById(id);
+        // const existingProduct = await this.getProductById(id);
+        const existingProduct = await Product.findByPk(id, {
+            include: [{ model: ProductImage, as: 'images' }],
+        });
         if (!existingProduct) {
             throw new Error('Product not found');
         }

@@ -19,7 +19,7 @@ export const Cart = () => {
     );
     const clearCart = useCartStore((state) => state.clearCart);
 
-    const IMAGE_BASE_URL = "http://localhost:3000";
+    const IMAGE_BASE_URL =  import.meta.env.VITE_APP_IMAGE_BASE_URL || "http://localhost:3000";
 
     const getImageUrl = (imageUrl) => {
         if (!imageUrl) {

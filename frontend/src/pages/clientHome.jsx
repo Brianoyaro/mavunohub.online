@@ -40,7 +40,7 @@ export const Home = () => {
     const navigate = useNavigate();
     const addToCart = useCartStore((state) => state.addToCart);
 
-    const IMAGE_BASE_URL = "http://localhost:3000";
+    const IMAGE_BASE_URL =  import.meta.env.VITE_APP_IMAGE_BASE_URL || "http://localhost:3000";
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
