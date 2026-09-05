@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 import { Home } from './pages/clientHome';
 import { NavBar } from './components/navbar';
+import { Footer } from './components/footer';
 import { ProductDetail } from './pages/clientProductDetail';
 import { Cart } from "./pages/cartView";
 
@@ -30,6 +31,7 @@ const Layout = ({ children }) => {
       <main className="container mx-auto p-4">
         {children}<Outlet />
       </main>
+      <Footer />
     </div>
   );
 };
