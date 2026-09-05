@@ -12,6 +12,11 @@ export const ProductDetail = () => {
 
     const IMAGE_BASE_URL =  import.meta.env.VITE_APP_IMAGE_BASE_URL || "http://localhost:3000";
 
+    const priceFormatter = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "KSH",
+    });
+
     const [product, setProduct] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
@@ -136,11 +141,6 @@ export const ProductDetail = () => {
         images.length > 0
             ? getImageUrl(images[selectedImage]?.imageUrl)
             : null;
-
-    const formattedPrice = Number(product.price).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -279,7 +279,7 @@ export const ProductDetail = () => {
                             {/* Price */}
                             <div className="mt-5">
                                 <span className="text-3xl font-bold text-blue-600">
-                                    {formattedPrice}
+                                    {priceFormatter.format(product.price)}
                                 </span>
                             </div>
 
