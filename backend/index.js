@@ -1,7 +1,7 @@
 require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
-// const path = require('path');
+const path = require('path');
 const { sequelize } = require('./models');
 const config = require('./config/env');
 const routes = require('./routes');
@@ -16,10 +16,32 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Serve static files from the uploads directory
 app.use('/uploads', express.static(config.upload.dir));
+// sitemaps folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use(routes);
+
+// Explicit SEO routes for sitemap.xml, sitemap-products.xml, and sitemap-categories.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/sitemap-products.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sitemap-products.xml'));
+});
+
+app.get('/sitemap-categories.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sitemap-categories.xml'));
+});
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 
 // 404 handler
 app.use((req, res) => {
