@@ -2,39 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCartStore } from "../store/cartStore";
-
+import { productCategoryOptions, productTypeOptions, productMaterialOptions } from "../components/configs";
 import { productAPI } from "../api/productsApi";
 
-const productCategoryOptions = [
-    "Home",
-    "Office",
-    "Outdoor",
-    "Bedroom",
-    "Living Room",
-];
-
-const productTypeOptions = [
-    "Bed",
-    "Sofas",
-    "Dining Set",
-    "Dining Table",
-    "Dining Chair",
-    "Home Other",
-    "Office Chair",
-    "Boardroom Table",
-    "Workstation",
-    "Office Sofa",
-    "Office Desk",
-    "Office Other",
-];
-
-const productMaterialOptions = [
-    "Wood",
-    "Metal",
-    "Plastic",
-    "Glass",
-    "Fabric",
-];
 
 export const Home = () => {
     const navigate = useNavigate();

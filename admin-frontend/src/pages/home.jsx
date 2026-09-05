@@ -1,40 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { productCategoryOptions, productTypeOptions, productMaterialOptions } from "../components/configs";
 import toast from "react-hot-toast";
 
 import { productAPI } from "../api/productsApi";
 import { DeleteModal } from "../components/deleteModal";
-
-const productCategoryOptions = [
-    "Home",
-    "Office",
-    "Outdoor",
-    "Bedroom",
-    "Living Room",
-];
-
-const productTypeOptions = [
-    "Bed",
-    "Sofas",
-    "Dining Set",
-    "Dining Table",
-    "Dining Chair",
-    "Home Other",
-    "Office Chair",
-    "Boardroom Table",
-    "Workstation",
-    "Office Sofa",
-    "Office Desk",
-    "Office Other",
-];
-
-const productMaterialOptions = [
-    "Wood",
-    "Metal",
-    "Plastic",
-    "Glass",
-    "Fabric",
-];
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -890,7 +860,7 @@ export const Home = () => {
                                                         {/* Description */}
                                                         <p className="mb-3 hidden line-clamp-2 text-sm leading-5 text-gray-600 sm:block sm:min-h-[40px] sm:mb-4">
                                                             {
-                                                                product.description
+                                                                product.description.slice(0, 100) + (product.description.length > 100 ? "..." : "")
                                                             }
                                                         </p>
 
