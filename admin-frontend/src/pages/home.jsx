@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { productCategoryOptions, productTypeOptions, productMaterialOptions } from "../components/configs";
 import toast from "react-hot-toast";
+import { productTypeOptions, productCategoryOptions, productMaterialOptions } from "../components/configs";
 
 import { productAPI } from "../api/productsApi";
 import { DeleteModal } from "../components/deleteModal";
+
+const PRODUCTS_PER_CATEGORY = parseInt(import.meta.env.VITE_APP_PRODUCTS_PER_CATEGORY) || 4;
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -23,7 +25,6 @@ export const Home = () => {
         material: "",
     });
 
-    // Mobile filter accordion state
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     const fetchProducts = useCallback(async () => {
@@ -32,7 +33,7 @@ export const Home = () => {
 
             const response = await productAPI.getAllProducts();
 
-            setProducts(response.data);
+            setProducts(response.data || []);
         } catch (error) {
             console.error("Error fetching products:", error);
             toast.error("Failed to load products.");
@@ -45,9 +46,6 @@ export const Home = () => {
         fetchProducts();
     }, [fetchProducts]);
 
-    /*
-     * Update a single filter.
-     */
     const handleFilterChange = (event) => {
         const { name, value } = event.target;
 
@@ -57,9 +55,6 @@ export const Home = () => {
         }));
     };
 
-    /*
-     * Reset all filters.
-     */
     const clearFilters = () => {
         setFilters({
             category: "",
@@ -68,26 +63,17 @@ export const Home = () => {
         });
     };
 
-    /*
-     * Determine whether any filter is active.
-     */
     const hasActiveFilters =
         Boolean(filters.category) ||
         Boolean(filters.type) ||
         Boolean(filters.material);
 
-    /*
-     * Count active filters for the mobile Filters button.
-     */
     const activeFilterCount = [
         filters.category,
         filters.type,
         filters.material,
     ].filter(Boolean).length;
 
-    /*
-     * Filter products.
-     */
     const filteredProducts = useMemo(() => {
         return products.filter((product) => {
             const matchesCategory =
@@ -110,9 +96,6 @@ export const Home = () => {
         });
     }, [products, filters]);
 
-    /*
-     * Group filtered products by category.
-     */
     const productsByCategory = useMemo(() => {
         return productCategoryOptions.reduce((groups, category) => {
             groups[category] = filteredProducts.filter(
@@ -136,39 +119,42 @@ export const Home = () => {
     };
 
     const handleCardClick = (id) => {
-        navigate(`/products/${id}`);
+        navigate(`/${id}`);
     };
 
     const handleUpdate = (event, id) => {
         event.stopPropagation();
-
         navigate(`/update/${id}`);
     };
 
     const handleDelete = (event, id) => {
         event.stopPropagation();
-
         setDeleteProductId(id);
     };
 
-    /*
-     * Loading state
-     */
+    const handleViewAll = (category) => {
+        navigate(
+            `/products?category=${encodeURIComponent(category)}`
+        );
+    };
+
+    const priceFormatter = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "KES",
+    });
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-100">
                 <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
-
                     <div className="mb-6 sm:mb-8">
                         <div className="h-7 w-36 animate-pulse rounded bg-gray-200 sm:h-9 sm:w-48" />
 
                         <div className="mt-3 h-4 w-64 max-w-full animate-pulse rounded bg-gray-200" />
                     </div>
 
-                    {/* Mobile filter skeleton */}
                     <div className="mb-6 h-12 animate-pulse rounded-xl bg-gray-200 sm:hidden" />
 
-                    {/* Desktop filter skeleton */}
                     <div className="mb-8 hidden rounded-xl bg-white p-5 shadow-sm sm:block">
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             {[1, 2, 3].map((item) => (
@@ -180,27 +166,31 @@ export const Home = () => {
                         </div>
                     </div>
 
-                    {/* Product skeleton */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                            <div
-                                key={item}
-                                className="overflow-hidden rounded-xl bg-white shadow-sm"
-                            >
-                                <div className="h-36 animate-pulse bg-gray-200 sm:h-56" />
+                    {[1, 2].map((section) => (
+                        <div
+                            key={section}
+                            className="mb-10"
+                        >
+                            <div className="mb-5 h-7 w-40 animate-pulse rounded bg-gray-200" />
 
-                                <div className="space-y-2 p-3 sm:space-y-3 sm:p-5">
-                                    <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200 sm:h-5" />
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                                {[1, 2, 3, 4].map((item) => (
+                                    <div
+                                        key={item}
+                                        className="overflow-hidden rounded-xl bg-white shadow-sm"
+                                    >
+                                        <div className="h-36 animate-pulse bg-gray-200 sm:h-56" />
 
-                                    <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200 sm:h-4" />
-
-                                    <div className="h-8 w-full animate-pulse rounded bg-gray-200 sm:h-10" />
-
-                                    <div className="h-8 w-full animate-pulse rounded bg-gray-200 sm:h-10" />
-                                </div>
+                                        <div className="space-y-3 p-3 sm:p-5">
+                                            <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200" />
+                                            <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200" />
+                                            <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
@@ -210,10 +200,7 @@ export const Home = () => {
         <div className="min-h-screen bg-gray-100">
             <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
 
-                {/* ---------------------------------------- */}
                 {/* Header */}
-                {/* ---------------------------------------- */}
-
                 <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
@@ -248,10 +235,7 @@ export const Home = () => {
                     </button>
                 </div>
 
-                {/* ---------------------------------------- */}
-                {/* Mobile Filters Button */}
-                {/* ---------------------------------------- */}
-
+                {/* Mobile filters */}
                 <div className="mb-5 sm:hidden">
                     <button
                         type="button"
@@ -259,8 +243,7 @@ export const Home = () => {
                             setIsFiltersOpen((current) => !current)
                         }
                         aria-expanded={isFiltersOpen}
-                        aria-controls="mobile-product-filters"
-                        className="flex min-h-12 w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-4 shadow-sm transition active:bg-gray-50"
+                        className="flex min-h-12 w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-4 shadow-sm"
                     >
                         <div className="flex items-center gap-3">
                             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -299,10 +282,8 @@ export const Home = () => {
                         </div>
 
                         <svg
-                            className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                                isFiltersOpen
-                                    ? "rotate-180"
-                                    : ""
+                            className={`h-5 w-5 text-gray-500 transition-transform ${
+                                isFiltersOpen ? "rotate-180" : ""
                             }`}
                             fill="none"
                             viewBox="0 0 24 24"
@@ -317,15 +298,8 @@ export const Home = () => {
                         </svg>
                     </button>
 
-                    {/* ---------------------------------------- */}
-                    {/* Mobile Filter Panel */}
-                    {/* ---------------------------------------- */}
-
                     {isFiltersOpen && (
-                        <div
-                            id="mobile-product-filters"
-                            className="mt-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                        >
+                        <div className="mt-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                             <div className="mb-4 flex items-center justify-between">
                                 <div>
                                     <h2 className="text-sm font-semibold text-gray-900">
@@ -349,141 +323,43 @@ export const Home = () => {
                             </div>
 
                             <div className="space-y-3">
+                                <FilterSelect
+                                    id="mobile-category"
+                                    name="category"
+                                    label="Category"
+                                    value={filters.category}
+                                    onChange={handleFilterChange}
+                                    options={productCategoryOptions}
+                                    placeholder="All categories"
+                                />
 
-                                {/* Category */}
-                                <div>
-                                    <label
-                                        htmlFor="mobile-category"
-                                        className="mb-1.5 block text-xs font-medium text-gray-700"
-                                    >
-                                        Category
-                                    </label>
+                                <FilterSelect
+                                    id="mobile-type"
+                                    name="type"
+                                    label="Type"
+                                    value={filters.type}
+                                    onChange={handleFilterChange}
+                                    options={productTypeOptions}
+                                    placeholder="All types"
+                                />
 
-                                    <select
-                                        id="mobile-category"
-                                        name="category"
-                                        value={filters.category}
-                                        onChange={handleFilterChange}
-                                        className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    >
-                                        <option value="">
-                                            All categories
-                                        </option>
-
-                                        {productCategoryOptions.map(
-                                            (category) => (
-                                                <option
-                                                    key={category}
-                                                    value={category}
-                                                >
-                                                    {category}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
-                                </div>
-
-                                {/* Type */}
-                                <div>
-                                    <label
-                                        htmlFor="mobile-type"
-                                        className="mb-1.5 block text-xs font-medium text-gray-700"
-                                    >
-                                        Type
-                                    </label>
-
-                                    <select
-                                        id="mobile-type"
-                                        name="type"
-                                        value={filters.type}
-                                        onChange={handleFilterChange}
-                                        className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    >
-                                        <option value="">
-                                            All types
-                                        </option>
-
-                                        {productTypeOptions.map(
-                                            (type) => (
-                                                <option
-                                                    key={type}
-                                                    value={type}
-                                                >
-                                                    {type}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
-                                </div>
-
-                                {/* Material */}
-                                <div>
-                                    <label
-                                        htmlFor="mobile-material"
-                                        className="mb-1.5 block text-xs font-medium text-gray-700"
-                                    >
-                                        Material
-                                    </label>
-
-                                    <select
-                                        id="mobile-material"
-                                        name="material"
-                                        value={filters.material}
-                                        onChange={handleFilterChange}
-                                        className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    >
-                                        <option value="">
-                                            All materials
-                                        </option>
-
-                                        {productMaterialOptions.map(
-                                            (material) => (
-                                                <option
-                                                    key={material}
-                                                    value={material}
-                                                >
-                                                    {material}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
-                                </div>
+                                <FilterSelect
+                                    id="mobile-material"
+                                    name="material"
+                                    label="Material"
+                                    value={filters.material}
+                                    onChange={handleFilterChange}
+                                    options={productMaterialOptions}
+                                    placeholder="All materials"
+                                />
                             </div>
-
-                            {/* Mobile active filters */}
-                            {hasActiveFilters && (
-                                <div className="mt-4 border-t border-gray-100 pt-3">
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {filters.category && (
-                                            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
-                                                {filters.category}
-                                            </span>
-                                        )}
-
-                                        {filters.type && (
-                                            <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700">
-                                                {filters.type}
-                                            </span>
-                                        )}
-
-                                        {filters.material && (
-                                            <span className="rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-semibold text-green-700">
-                                                {filters.material}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
 
-                {/* ---------------------------------------- */}
-                {/* Desktop Filters */}
-                {/* ---------------------------------------- */}
-
+                {/* Desktop filters */}
                 <div className="mb-8 hidden rounded-xl bg-white p-5 shadow-sm sm:block lg:mb-10">
-                    <div className="mb-5 flex items-center justify-between gap-4">
+                    <div className="mb-5 flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">
                                 Filter Products
@@ -499,7 +375,7 @@ export const Home = () => {
                             <button
                                 type="button"
                                 onClick={clearFilters}
-                                className="rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                                className="rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                             >
                                 Clear filters
                             </button>
@@ -507,243 +383,55 @@ export const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <FilterSelect
+                            id="category"
+                            name="category"
+                            label="Category"
+                            value={filters.category}
+                            onChange={handleFilterChange}
+                            options={productCategoryOptions}
+                            placeholder="All categories"
+                        />
 
-                        {/* Category */}
-                        <div>
-                            <label
-                                htmlFor="category"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Category
-                            </label>
+                        <FilterSelect
+                            id="type"
+                            name="type"
+                            label="Type"
+                            value={filters.type}
+                            onChange={handleFilterChange}
+                            options={productTypeOptions}
+                            placeholder="All types"
+                        />
 
-                            <select
-                                id="category"
-                                name="category"
-                                value={filters.category}
-                                onChange={handleFilterChange}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            >
-                                <option value="">
-                                    All categories
-                                </option>
-
-                                {productCategoryOptions.map(
-                                    (category) => (
-                                        <option
-                                            key={category}
-                                            value={category}
-                                        >
-                                            {category}
-                                        </option>
-                                    )
-                                )}
-                            </select>
-                        </div>
-
-                        {/* Type */}
-                        <div>
-                            <label
-                                htmlFor="type"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Type
-                            </label>
-
-                            <select
-                                id="type"
-                                name="type"
-                                value={filters.type}
-                                onChange={handleFilterChange}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            >
-                                <option value="">
-                                    All types
-                                </option>
-
-                                {productTypeOptions.map((type) => (
-                                    <option
-                                        key={type}
-                                        value={type}
-                                    >
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Material */}
-                        <div>
-                            <label
-                                htmlFor="material"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Material
-                            </label>
-
-                            <select
-                                id="material"
-                                name="material"
-                                value={filters.material}
-                                onChange={handleFilterChange}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            >
-                                <option value="">
-                                    All materials
-                                </option>
-
-                                {productMaterialOptions.map(
-                                    (material) => (
-                                        <option
-                                            key={material}
-                                            value={material}
-                                        >
-                                            {material}
-                                        </option>
-                                    )
-                                )}
-                            </select>
-                        </div>
+                        <FilterSelect
+                            id="material"
+                            name="material"
+                            label="Material"
+                            value={filters.material}
+                            onChange={handleFilterChange}
+                            options={productMaterialOptions}
+                            placeholder="All materials"
+                        />
                     </div>
-
-                    {/* Desktop active filter summary */}
-                    {hasActiveFilters && (
-                        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
-                            <span className="text-sm font-medium text-gray-500">
-                                Active filters:
-                            </span>
-
-                            {filters.category && (
-                                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                                    Category: {filters.category}
-                                </span>
-                            )}
-
-                            {filters.type && (
-                                <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
-                                    Type: {filters.type}
-                                </span>
-                            )}
-
-                            {filters.material && (
-                                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                    Material: {filters.material}
-                                </span>
-                            )}
-                        </div>
-                    )}
                 </div>
 
-                {/* ---------------------------------------- */}
-                {/* Results summary */}
-                {/* ---------------------------------------- */}
-
-                {products.length > 0 && (
-                    <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
-                        <p className="text-xs text-gray-500 sm:text-sm">
-                            Showing{" "}
-                            <span className="font-semibold text-gray-900">
-                                {filteredProducts.length}
-                            </span>{" "}
-                            of{" "}
-                            <span className="font-semibold text-gray-900">
-                                {products.length}
-                            </span>{" "}
-                            products
-                        </p>
-
-                        {hasActiveFilters && (
-                            <button
-                                type="button"
-                                onClick={clearFilters}
-                                className="text-xs font-semibold text-blue-600 hover:text-blue-700 sm:hidden"
-                            >
-                                Clear filters
-                            </button>
-                        )}
-                    </div>
-                )}
-
-                {/* ---------------------------------------- */}
-                {/* No products */}
-                {/* ---------------------------------------- */}
-
+                {/* Results */}
                 {products.length === 0 ? (
-                    <div className="rounded-xl bg-white px-4 py-12 text-center shadow-sm sm:rounded-2xl sm:p-12">
-                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-                            <svg
-                                className="h-7 w-7 text-gray-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M3 7h18M5 7l1 13h12l1-13M9 7V5a3 3 0 016 0v2"
-                                />
-                            </svg>
-                        </div>
-
-                        <h2 className="mt-4 text-lg font-semibold text-gray-900 sm:text-xl">
-                            No products yet
-                        </h2>
-
-                        <p className="mt-2 text-sm text-gray-500">
-                            Create your first furniture product to get
-                            started.
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={() => navigate("/create")}
-                            className="mt-5 min-h-11 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 sm:mt-6"
-                        >
-                            Create Product
-                        </button>
-                    </div>
+                    <EmptyState
+                        title="No products yet"
+                        message="Create your first furniture product to get started."
+                        action="Create Product"
+                        onAction={() => navigate("/create")}
+                    />
                 ) : filteredProducts.length === 0 ? (
-                    <div className="rounded-xl bg-white px-4 py-12 text-center shadow-sm sm:rounded-2xl sm:p-12">
-                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16">
-                            <svg
-                                className="h-7 w-7 text-gray-400 sm:h-8 sm:w-8"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M21 21l-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
-                                />
-                            </svg>
-                        </div>
-
-                        <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
-                            No matching products
-                        </h2>
-
-                        <p className="mt-2 text-sm text-gray-500">
-                            Try changing or clearing your filters.
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={clearFilters}
-                            className="mt-5 min-h-11 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 sm:mt-6"
-                        >
-                            Clear Filters
-                        </button>
-                    </div>
+                    <EmptyState
+                        title="No matching products"
+                        message="Try changing or clearing your filters."
+                        action="Clear Filters"
+                        onAction={clearFilters}
+                    />
                 ) : (
-
-                    /* ---------------------------------------- */
-                    /* Category sections */
-                    /* ---------------------------------------- */
-
-                    <div className="space-y-8 sm:space-y-12">
+                    <div className="space-y-10 sm:space-y-12">
                         {productCategoryOptions.map((category) => {
                             const categoryProducts =
                                 productsByCategory[category];
@@ -752,33 +440,79 @@ export const Home = () => {
                                 return null;
                             }
 
+                            const visibleProducts =
+                                categoryProducts.slice(
+                                    0,
+                                    PRODUCTS_PER_CATEGORY
+                                );
+
+                            const hasMoreProducts =
+                                categoryProducts.length >
+                                PRODUCTS_PER_CATEGORY;
+
                             return (
                                 <section key={category}>
                                     {/* Category heading */}
-                                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-200 pb-3 sm:mb-5">
+                                    <div className="mb-4 flex items-end justify-between gap-4 border-b border-gray-200 pb-3 sm:mb-5">
                                         <div className="min-w-0">
-                                            <h2 className="truncate text-lg font-bold text-gray-900 sm:text-2xl">
+                                            <h2 className="truncate text-xl font-bold text-gray-900 sm:text-2xl">
                                                 {category}
                                             </h2>
 
-                                            <p className="mt-0.5 hidden text-sm text-gray-500 sm:block">
+                                            <p className="mt-1 hidden text-sm text-gray-500 sm:block">
                                                 Manage your{" "}
                                                 {category.toLowerCase()}{" "}
                                                 furniture
                                             </p>
                                         </div>
 
-                                        <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 sm:px-3 sm:text-sm">
-                                            {categoryProducts.length}
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleViewAll(category)
+                                            }
+                                            className="group flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700 sm:px-3 sm:py-2 sm:text-sm"
+                                        >
+                                            <span>
+                                                {hasMoreProducts
+                                                    ? "View all"
+                                                    : "View products"}
+                                            </span>
+
+                                            <svg
+                                                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M9 5l7 7-7 7"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    {/* Product count */}
+                                    <div className="mb-4">
+                                        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                            {categoryProducts.length}{" "}
+                                            {categoryProducts.length === 1
+                                                ? "product"
+                                                : "products"}
                                         </span>
                                     </div>
 
-                                    {/* Products */}
+                                    {/* Product grid */}
                                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                                        {categoryProducts.map((product) => {
+                                        {visibleProducts.map((product) => {
                                             const firstImageUrl =
-                                                product.images?.[0]
-                                                    ?.imageUrl;
+                                                product.images?.[0]?.imageUrl;
+
+                                            const description =
+                                                product.description || "";
 
                                             return (
                                                 <article
@@ -805,31 +539,24 @@ export const Home = () => {
                                                             />
                                                         ) : (
                                                             <div className="flex h-full items-center justify-center text-gray-400">
-                                                                <div className="text-center">
-                                                                    <svg
-                                                                        className="mx-auto h-8 w-8 sm:h-12 sm:w-12"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                        stroke="currentColor"
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth={
-                                                                                1.5
-                                                                            }
-                                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"
-                                                                        />
-                                                                    </svg>
-
-                                                                    <p className="mt-1 hidden text-sm sm:mt-2 sm:block">
-                                                                        No image
-                                                                    </p>
-                                                                </div>
+                                                                <svg
+                                                                    className="h-9 w-9 sm:h-12 sm:w-12"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke="currentColor"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={
+                                                                            1.5
+                                                                        }
+                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                    />
+                                                                </svg>
                                                             </div>
                                                         )}
 
-                                                        {/* Image count */}
                                                         {product.images?.length >
                                                             1 && (
                                                             <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-[9px] font-medium text-white backdrop-blur sm:bottom-3 sm:right-3 sm:px-2.5 sm:text-xs">
@@ -852,29 +579,33 @@ export const Home = () => {
                                                                 }
                                                             </h3>
 
-                                                            <p className="mt-1 truncate text-[10px] text-gray-500 sm:text-sm">
-                                                                {product.type}
-                                                            </p>
+                                                            {product.type && (
+                                                                <p className="mt-1 truncate text-[10px] text-gray-500 sm:text-sm">
+                                                                    {
+                                                                        product.type
+                                                                    }
+                                                                </p>
+                                                            )}
                                                         </div>
 
-                                                        {/* Description */}
-                                                        <p className="mb-3 hidden line-clamp-2 text-sm leading-5 text-gray-600 sm:block sm:min-h-[40px] sm:mb-4">
-                                                            {
-                                                                product.description.slice(0, 100) + (product.description.length > 100 ? "..." : "")
-                                                            }
+                                                        <p className="mb-3 hidden line-clamp-2 text-sm leading-5 text-gray-600 sm:mb-4 sm:block sm:min-h-[40px]">
+                                                            {description
+                                                                ? description.length >
+                                                                  100
+                                                                    ? `${description.slice(
+                                                                          0,
+                                                                          100
+                                                                      )}...`
+                                                                    : description
+                                                                : "No description available."}
                                                         </p>
 
-                                                        {/* Price + material */}
-                                                        <div className="mb-3 flex min-w-0 flex-col gap-1.5 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+                                                        <div className="mb-3 flex min-w-0 flex-col gap-1.5 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                                                             <span className="truncate text-sm font-bold text-blue-600 sm:text-xl">
-                                                                {Number(
-                                                                    product.price
-                                                                ).toLocaleString(
-                                                                    undefined,
-                                                                    {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2,
-                                                                    }
+                                                                {priceFormatter.format(
+                                                                    Number(
+                                                                        product.price
+                                                                    )
                                                                 )}
                                                             </span>
 
@@ -924,6 +655,37 @@ export const Home = () => {
                                             );
                                         })}
                                     </div>
+
+                                    {/* Bottom View All */}
+                                    {hasMoreProducts && (
+                                        <div className="mt-5 flex justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleViewAll(category)
+                                                }
+                                                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                            >
+                                                View all{" "}
+                                                {category.toLowerCase()}{" "}
+                                                products
+
+                                                <svg
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
                                 </section>
                             );
                         })}
@@ -931,7 +693,6 @@ export const Home = () => {
                 )}
             </div>
 
-            {/* Delete modal */}
             {deleteProductId && (
                 <DeleteModal
                     id={deleteProductId}
@@ -942,6 +703,99 @@ export const Home = () => {
                     }}
                 />
             )}
+        </div>
+    );
+};
+
+
+/* -------------------------------------------------- */
+/* Reusable filter select */
+/* -------------------------------------------------- */
+
+const FilterSelect = ({
+    id,
+    name,
+    label,
+    value,
+    onChange,
+    options,
+    placeholder,
+}) => {
+    return (
+        <div>
+            <label
+                htmlFor={id}
+                className="mb-2 block text-sm font-medium text-gray-700"
+            >
+                {label}
+            </label>
+
+            <select
+                id={id}
+                name={name}
+                value={value}
+                onChange={onChange}
+                className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            >
+                <option value="">{placeholder}</option>
+
+                {options.map((option) => (
+                    <option
+                        key={option}
+                        value={option}
+                    >
+                        {option}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
+
+/* -------------------------------------------------- */
+/* Empty state */
+/* -------------------------------------------------- */
+
+const EmptyState = ({
+    title,
+    message,
+    action,
+    onAction,
+}) => {
+    return (
+        <div className="rounded-2xl bg-white px-4 py-14 text-center shadow-sm sm:p-16">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                <svg
+                    className="h-8 w-8 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M3 7h18M5 7l1 13h12l1-13M9 7V5a3 3 0 016 0v2"
+                    />
+                </svg>
+            </div>
+
+            <h2 className="mt-5 text-xl font-semibold text-gray-900">
+                {title}
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+                {message}
+            </p>
+
+            <button
+                type="button"
+                onClick={onAction}
+                className="mt-6 min-h-11 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+                {action}
+            </button>
         </div>
     );
 };

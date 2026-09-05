@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import { Home } from './pages/home';
@@ -8,6 +8,7 @@ import { UpdateFurniture } from './pages/updateFurniture';
 import { DeleteModal } from './components/deleteModal';
 import  { NavBar } from './components/navbar';
 import { ProductDetail } from './pages/productDetail';
+import { ProductListView } from './pages/productListView';
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -41,10 +42,11 @@ const AppRoutes = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/:id" element={<ProductDetail />} />
           <Route path="/create" element={<CreateFurniture />} />
           <Route path="/update/:id" element={<UpdateFurniture />} />
           <Route path="/delete/:id" element={<DeleteModal />} />
+          <Route path="/products" element={<ProductListView />} />
         </Route>
       </Routes>
     </Router>
