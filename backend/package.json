@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node scripts/generateSitemap.js ; node index.js",
+    "dev": "nodemon index.js",
+    "sitemap": "node scripts/generateSitemap.js"
   },
   "keywords": [],
   "author": "",
