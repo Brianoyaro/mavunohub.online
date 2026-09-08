@@ -96,7 +96,7 @@ export const Cart = () => {
     //     });
     // };
     const handleCheckout = () => {
-        const phoneNumber = "254722474626";
+        const phoneNumber = import.meta.env.VITE_APP_WHATSAPP_NUMBER || "254722474626";
 
         const orderDetails = cart
             .map((item) => {
