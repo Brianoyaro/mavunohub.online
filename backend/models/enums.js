@@ -23,15 +23,6 @@ const FURNITURE_CATEGORY = {
   RECEPTION: 'RECEPTION',
 };
 
-export const productCategoryOptions = [
-    "Chairs",
-    "Cabinets",
-    "Home Furniture",
-    "Office Desks",
-    "Workstations",
-    "Executive Sofa",
-    "Reception",
-];
 
 const FURNITURE_MATERIAL = {
   WOOD: 'WOOD',
