@@ -45,12 +45,14 @@ module.exports = {
 
       category: {
         type: Sequelize.ENUM(
-          'HOME',
-          'OFFICE',
-          'OUTDOOR',
-          'BEDROOM',
-          'LIVING_ROOM'
-        ),
+            'CHAIRS',
+            'CABINETS',
+            'HOME_FURNITURE',
+            'WORKSTATIONS',
+            'EXECUTIVE_SOFA',
+            'OFFICE_DESK',
+            'RECEPTION',
+                  ),
         allowNull: false,
       },
 
