@@ -57,11 +57,24 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established');
 
-    await sequelize.sync();
-    console.log('Database models synchronized');
+    const nodeEnv = process.env.NODE_ENV || 'development';
+
+    if (nodeEnv === 'development') {
+      await sequelize.sync();
+      console.log('Database models synchronized (development mode)');
+    } else if (nodeEnv === 'production') {
+      console.log(
+        'Production mode: skipping sequelize.sync(). Database schema is managed by migrations.'
+      );
+    } else {
+      throw new Error(
+        `Invalid NODE_ENV: "${nodeEnv}". Expected "development" or "production".`
+      );
+    }
 
     app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`);
+      console.log(`Environment: ${nodeEnv}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -70,5 +83,4 @@ const startServer = async () => {
 };
 
 startServer();
-
 module.exports = app;
