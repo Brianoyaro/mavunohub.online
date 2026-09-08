@@ -1,9 +1,11 @@
 export const productCategoryOptions = [
-    "Home",
-    "Office",
-    "Outdoor",
-    "Bedroom",
-    "Living Room",
+    "Chairs",
+    "Cabinets",
+    "Home Furniture",
+    "Office Desks",
+    "Workstations",
+    "Executive Sofa",
+    "Reception",
 ];
 
 export const productTypeOptions = [

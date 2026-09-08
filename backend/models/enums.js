@@ -14,12 +14,24 @@ const FURNITURE_TYPE = {
 };
 
 const FURNITURE_CATEGORY = {
-  HOME: 'HOME',
-  OFFICE: 'OFFICE',
-  OUTDOOR: 'OUTDOOR',
-  BEDROOM: 'BEDROOM',
-  LIVING_ROOM: 'LIVING_ROOM',
+  CHAIRS: 'CHAIRS',
+  CABINETS: 'CABINETS',
+  HOME_FURNITURE: 'HOME_FURNITURE',
+  WORKSTATIONS: 'WORKSTATIONS',
+  EXECUTIVE_SOFA: 'EXECUTIVE_SOFA',
+  OFFICE_DESK: 'OFFICE_DESK',
+  RECEPTION: 'RECEPTION',
 };
+
+export const productCategoryOptions = [
+    "Chairs",
+    "Cabinets",
+    "Home Furniture",
+    "Office Desks",
+    "Workstations",
+    "Executive Sofa",
+    "Reception",
+];
 
 const FURNITURE_MATERIAL = {
   WOOD: 'WOOD',
