@@ -43,7 +43,7 @@ export const WhatsAppButton = ({ product, quantity = 1, className = "" }) => {
         <button
             type="button"
             onClick={handleWhatsApp}
-            className={`flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-green-600 px-2 py-2 text-[11px] font-semibold text-white transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${className}`}
+            className={`flex min-h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-green-600 px-2 py-2 text-[11px] font-semibold text-white transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${className}`}
         >
             <svg
                 className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"

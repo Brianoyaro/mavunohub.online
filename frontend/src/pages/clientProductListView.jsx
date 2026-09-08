@@ -841,7 +841,7 @@ export const ProductListView = () => {
                                                 )}
                                             </div>
 
-                                            <div className="mt-auto grid grid-cols-2 gap-2">
+                                            <div className="mt-auto flex flex-col gap-2">
                                                 <button
                                                     type="button"
                                                     onClick={(event) =>
@@ -850,7 +850,7 @@ export const ProductListView = () => {
                                                             product
                                                         )
                                                     }
-                                                    className="flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-2 py-2 text-[11px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+                                                    className="flex min-h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-blue-600 px-2 py-2 text-[11px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
                                                 >
                                                 <svg
                                                     className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
