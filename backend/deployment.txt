@@ -1,0 +1,11 @@
+Deployment workflow
+------------------------
+
+git pull
+npm ci
+npx sequelize-cli db:migrate
+npm run sitemap
+pm2 restart mavunohub-api
+
+
+is handled by the commands: npm run prod + pm2 restart mavunohub.online

@@ -57,7 +57,8 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established');
 
-    const nodeEnv = process.env.NODE_ENV || 'development';
+    const nodeEnv = config.nodeEnv;
+    // const nodeEnv = process.env.NODE_ENV || 'development';
 
     if (nodeEnv === 'development') {
       await sequelize.sync();

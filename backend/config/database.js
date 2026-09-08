@@ -3,7 +3,7 @@ require('dotenv').config();
 const config = require('./env');
 // const { database } = config;
 
-console.log('Database configuration:', config.database);
+//console.log('Database configuration:', config.database);
 
 const sequelize = new Sequelize(
   config.database.name,
