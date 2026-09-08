@@ -4,6 +4,7 @@ import { useCartStore } from "../store/cartStore";
 import toast from "react-hot-toast";
 
 import { productAPI } from "../api/productsApi";
+import { WhatsAppButton } from "../components/whatsappButton";
 
 export const ProductDetail = () => {
     const { id } = useParams();
@@ -376,11 +377,12 @@ export const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={handleAddToCart}
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleAddToCart}
+                                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    >
                                     <svg
                                         className="h-5 w-5"
                                         fill="none"
@@ -395,8 +397,15 @@ export const ProductDetail = () => {
                                         />
                                     </svg>
 
-                                    Add to Cart
-                                </button>
+                                        Add to Cart
+                                    </button>
+
+                                    <WhatsAppButton
+                                        product={product}
+                                        quantity={quantity}
+                                        className="rounded-xl px-6 py-3.5 text-base"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
