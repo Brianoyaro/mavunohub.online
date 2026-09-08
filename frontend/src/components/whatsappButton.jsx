@@ -5,15 +5,20 @@ const formatPrice = (price) =>
     });
 
 export const WhatsAppButton = ({ product, quantity = 1, className = "" }) => {
+
+    const baseUrl = `https://mavunohub.online`
+
     const handleWhatsApp = (event) => {
         event.stopPropagation();
 
         const itemTotal = Number(product.price) * quantity;
+        const productUrl = `${baseUrl}/${product.id}`
         const productDetails = [
             `Product: ${product.name}`,
             `Type: ${product.type || "N/A"}`,
             product.material ? `Material: ${product.material}` : null,
             `Quantity: ${quantity}`,
+            `Product Preview: ${productUrl}`,
             `Unit Price: ${formatPrice(product.price)}`,
             `Item Total: ${formatPrice(itemTotal)}`,
         ]

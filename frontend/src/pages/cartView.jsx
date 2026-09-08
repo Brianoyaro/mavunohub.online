@@ -97,11 +97,13 @@ export const Cart = () => {
     // };
     const handleCheckout = () => {
         const phoneNumber = import.meta.env.VITE_APP_WHATSAPP_NUMBER || "254722474626";
-
+        const baseUrl = `https://mavunohub.online`
         const orderDetails = cart
             .map((item) => {
                 const itemTotal =
                     Number(item.price) * item.quantity;
+                
+                const productUrl = `${baseUrl}/${item.id}`
 
                 return [
                     `Product: ${item.name}`,
@@ -110,6 +112,7 @@ export const Cart = () => {
                         ? `Material: ${item.material}`
                         : null,
                     `Quantity: ${item.quantity}`,
+                    `Product Preview: ${productUrl}`,
                     `Unit Price: ${formatPrice(item.price)}`,
                     `Item Total: ${formatPrice(itemTotal)}`,
                 ]
