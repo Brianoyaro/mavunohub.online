@@ -8,6 +8,7 @@ import { Footer } from './components/footer';
 import { ProductDetail } from './pages/clientProductDetail';
 import { Cart } from "./pages/cartView";
 import { ProductListView } from "./pages/clientProductListView";
+import { LandingPage } from './pages/LandingPage';
 
 
 // Create a client for React Query
@@ -42,6 +43,7 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/home" element={<LandingPage />} />
           <Route path="/" element={<Home />} />
           <Route path="/:id" element={<ProductDetail />} />
           <Route path="/products" element={<ProductListView />} />

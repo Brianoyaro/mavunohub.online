@@ -14,7 +14,7 @@ export const NavBar = () => {
             <div className="container mx-auto flex items-center justify-between">
                 {/* Logo */}
                 <Link
-                    to="/"
+                    to="/home"
                     className="text-lg font-bold text-white hover:text-gray-300"
                 >
                     mavunohub
@@ -24,7 +24,7 @@ export const NavBar = () => {
                 <ul className="flex items-center space-x-6">
                     <li>
                         <Link
-                            to="/"
+                            to="/home"
                             className="text-white hover:text-gray-300"
                         >
                             Home
