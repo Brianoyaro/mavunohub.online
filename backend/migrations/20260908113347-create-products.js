@@ -50,7 +50,7 @@ module.exports = {
             'HOME_FURNITURE',
             'WORKSTATIONS',
             'EXECUTIVE_SOFA',
-            'OFFICE_DESK',
+            'OFFICE_DESKS',
             'RECEPTION',
                   ),
         allowNull: false,
