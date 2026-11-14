@@ -38,7 +38,11 @@ export const Home = () => {
 
             const response = await productAPI.getAllProducts();
 
-            setProducts(response.data || []);
+            if (!Array.isArray(response.data)) {
+                throw new TypeError("Products API response must be an array.");
+            }
+
+            setProducts(response.data);
         } catch (error) {
             console.error("Error fetching products:", error);
             toast.error("Failed to load products.");
