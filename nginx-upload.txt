@@ -1,0 +1,94 @@
+PM2 backend:
+-----------------------------------
+npm run prod
+pm2 start npm --name mavunohub-api -- start
+pm2 startup
+pm2 save
+
+
+Build the frontends with:
+---------------------------
+npm install
+npm run build
+
+
+create /etc/nginx/sites-available/mavunohub.online with the following:
+----------------------------------------------------------------------------
+server {
+    listen 80;
+    server_name mavunohub.online;
+
+    root /home/brian/mavunohub.online/frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+server {
+    listen 80;
+    server_name admin.mavunohub.online;
+
+    root /home/brian/mavunohub.online/admin-frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+server {
+    listen 80;
+    server_name api.mavunohub.online;
+
+    client_max_body_size 50M;
+
+    location / {
+        proxy_pass http://127.0.0.1:5001;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+
+Enable the sites and install certificates:
+sudo ln -s /etc/nginx/sites-available/mavunohub.online /etc/nginx/sites-enabled/mavunohub.online
+sudo nginx -t
+sudo systemctl reload nginx
+
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx \
+  -d mavunohub.online \
+  -d admin.mavunohub.online \
+  -d api.mavunohub.online
+
+
+
+Miscellanous (PM2 management)
+---------------------------------
+# View all running processes
+pm2 list
+
+# View logs
+pm2 logs mavunohub-api
+
+# Monitor CPU/Memory usage
+pm2 monit
+
+# Restart application
+pm2 restart mavunohub-api
+
+# Stop application
+pm2 stop mavunohub-api
+
+# Delete from PM2
+pm2 delete mavunohub-api
+
+# View detailed info
+pm2 show mavunohub-api
